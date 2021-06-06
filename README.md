@@ -1,5 +1,7 @@
 # Docker Ansible Playbook
 
+[![CI](https://www.travis-ci.com/AndreaTosti/Docker-Ops.svg?branch=main)](https://www.travis-ci.com/AndreaTosti/Docker-Ops)
+
 This project aims to demonstrate the Ansible capabilities when you need to provision multiple Docker machines in a few steps.
 
 ## Prerequisites

@@ -1,0 +1,5 @@
+---
+roles:
+  # From Ansible Galaxy, docker role
+  - name: geerlingguy.docker
+    version: 3.1.2
