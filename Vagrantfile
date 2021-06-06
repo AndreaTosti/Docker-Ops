@@ -14,7 +14,7 @@ Vagrant.configure("2") do |config|
     libvirt.uri = "qemu:///system"
     libvirt.storage_pool_name = "default"
     libvirt.qemu_use_session = false
-    libvirt.machine_virtual_size = 42
+    libvirt.machine_virtual_size = 50
   end
 
   # VM CentOS 1
@@ -31,7 +31,6 @@ Vagrant.configure("2") do |config|
 
   config.vm.provision "ansible" do |ansible|
     ansible.playbook = "playbook.yml"
-    ansible.verbose = "vvv"
   end
 
 end
