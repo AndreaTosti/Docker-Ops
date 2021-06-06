@@ -7,7 +7,12 @@ This project aims to demonstrate the Ansible capabilities when you need to provi
 Software that needs to be present on your local machine:
 - A recent version of Ansible
 - A recent version of Vagrant
-- A recent version of Libvirt or VirtualBox
+- A recent version of Libvirt ~~or VirtualBox~~
+- A recent version of QEMU KVM
+- Install playbook roles using:
+  ~~~
+  ansible-galaxy role install -p ./roles -r ./requirements.yml
+  ~~~
 
 ## First startup
 
