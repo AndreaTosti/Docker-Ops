@@ -1,0 +1,87 @@
+---
+- name: Ensure that growpart and gdisk are installed
+  yum:
+    name:
+      - cloud-utils-growpart
+      - gdisk
+    state: present
+
+- name: Obtain file system corresponding to / mount point
+  ansible.builtin.shell: df -m / | awk '{ print $1 }' | tail -n 1
+  register: fs_root_mount_point
+
+- name: Print File system corresponding to / mount point
+  ansible.builtin.debug:
+    var: fs_root_mount_point.stdout
+
+- name: Retrieve partition number corresponding to the file system corresponding to / mount point
+  ansible.builtin.shell: parted '{{ fs_root_mount_point.stdout }}' print | awk '/^Number/{p=1;next}; p{print $1}' | awk 'NF'
+  register: partition_number_root
+
+- name: Print partition number corresponding to the file system corresponding to / mount point
+  ansible.builtin.debug:
+    var: partition_number_root.stdout
+
+- name: 'Retrieve facts: Ansible Mounts'
+  gather_facts: 
+    filter: ansible_mounts
+
+- name: Retrieve available space on / mount point
+  set_fact:
+    fs_root_size_available: "{{ (
+    ansible_mounts|
+    selectattr('mount', 'equalto', '/')|
+    selectattr('fstype', 'equalto', 'xfs')|
+    selectattr('device', 'equalto', fs_root_mount_point.stdout)|
+    first
+    ).size_available }}"
+
+- name: Print available space on / mount point
+  ansible.builtin.debug:
+    var: fs_root_size_available
+
+- name: 'Calculate remaining space needed for Docker: [40GiB - (available space on / mount point)]'
+  set_fact:
+    remaining_space_needed_for_docker: "{{ (42949672960 - fs_root_size_available|int)|int }}"
+
+- name: Print remaining space needed for Docker
+  ansible.builtin.debug:
+    var: remaining_space_needed_for_docker
+
+- name: Retrieve the name of the disk containing file system corresponding to / mount point
+  ansible.builtin.shell: lsblk -no pkname '{{ fs_root_mount_point.stdout }}'
+  register: disk_name_root
+
+- name: Print the name of the disk containing file system corresponding to / mount point
+  ansible.builtin.debug:
+    var: disk_name_root.stdout
+
+- name: Resize the partition {partition number of root} of /dev/{disk name} ONLY IF remaining space needed for Docker is enough
+  ansible.builtin.shell: growpart /dev/'{{ disk_name_root.stdout }}' '{{ partition_number_root.stdout }}' --fudge '{{ remaining_space_needed_for_docker }}'
+  ignore_errors: yes
+
+- name: Expand the File System corresponding to the / mount point
+  ansible.builtin.shell: xfs_growfs /
+
+- name: 'Retrieve facts: Ansible Mounts'
+  gather_facts: 
+    filter: ansible_mounts
+
+- name: Retrieve available space on / mount point after resize
+  set_fact:
+    fs_root_size_available: "{{ (
+    ansible_mounts|
+    selectattr('mount', 'equalto', '/')|
+    selectattr('fstype', 'equalto', 'xfs')|
+    selectattr('device', 'equalto', fs_root_mount_point.stdout)|
+    first
+    ).size_available }}"
+
+- name: Print available space on / mount point after resize
+  ansible.builtin.debug:
+    var: fs_root_size_available
+
+- name: Assert available space on / mount point after resize is at least 40GiB
+  assert:
+    that:
+      - fs_root_size_available|int >= 42949672960
