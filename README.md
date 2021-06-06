@@ -9,7 +9,7 @@ This project aims to demonstrate the Ansible capabilities when you need to provi
 Software that needs to be present on your local machine:
 - A recent version of Ansible
 - A recent version of Vagrant
-- A recent version of Libvirt ~~or VirtualBox~~
+- A recent version of Libvirt
 - A recent version of QEMU KVM
 - Install playbook roles using:
   ~~~
@@ -36,7 +36,7 @@ redhat.vscode-yaml
 ### Commands
 
 ~~~
-vagrant box add centos/7    ---> choose libvirt/virtualbox ----> it downloads vagrant box in advance
+vagrant box add centos/7    ---> choose libvirt ----> it downloads vagrant box in advance
 vagrant init centos/7       ---> creates the initial Vagrantfile
 vagrant up                  ---> start/provision for the first time
 vagrant halt                ---> stop
