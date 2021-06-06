@@ -4,3 +4,4 @@ install:
   - ansible-lint --version
 script:
   - ansible-lint playbook.yml
+  - ansible-lint tasks/partition_resize.yml

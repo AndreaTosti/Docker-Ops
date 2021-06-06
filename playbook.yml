@@ -2,9 +2,10 @@
 - hosts: all
   become: yes
 
+  pre_tasks:
+    - name: Make sure the Docker partition has at least 40GiB
+      include: tasks/partition_resize.yml
+
   roles:
-    - geerlingguy.docker
-  tasks:
-    - name: Show setup - Ansible Mounts
-      gather_facts: 
-        filter: ansible_mounts
+    - name: Install docker
+      role: geerlingguy.docker
