@@ -1,0 +1,10 @@
+---
+- hosts: all
+  become: yes
+
+  roles:
+    - geerlingguy.docker
+  tasks:
+    - name: Show setup - Ansible Mounts
+      gather_facts: 
+        filter: ansible_mounts
